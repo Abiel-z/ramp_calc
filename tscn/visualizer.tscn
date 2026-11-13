@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://mwia3obuvlyu"]
+
+[ext_resource type="Script" uid="uid://djk11kbyuc1f6" path="res://gd/visualizer.gd" id="1_spofc"]
+
+[node name="Visualizer" type="Node3D" unique_id=1578010562]
+script = ExtResource("1_spofc")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=917212907]
+transform = Transform3D(0.5229038, 0, -0.85239154, 0, 1, 0, 0.85239154, 0, 0.5229038, -1.500871, 0, 0)
+current = true

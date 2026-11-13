@@ -1,0 +1,22 @@
+[gd_scene format=3 uid="uid://c667rpjpsfl41"]
+
+[ext_resource type="Script" uid="uid://ickq8yp3v4fd" path="res://gd/bloque_config.gd" id="1_ox7uq"]
+
+[node name="bloque_config" type="HBoxContainer" unique_id=84184427]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = -521.6
+offset_bottom = -1121.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_ox7uq")
+
+[node name="nombre" type="Label" parent="." unique_id=176047758]
+layout_mode = 2
+text = "test"
+
+[node name="slider" type="LineEdit" parent="." unique_id=388079182]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4

@@ -1,0 +1,214 @@
+[gd_scene format=3 uid="uid://orpok7akvbfe"]
+
+[ext_resource type="Script" uid="uid://berpjx11qcsu" path="res://gd/ui_calculos.gd" id="1_ewaw7"]
+[ext_resource type="Script" uid="uid://dmvo33gtql37t" path="res://gd/main.gd" id="1_g6ans"]
+[ext_resource type="PackedScene" uid="uid://mwia3obuvlyu" path="res://tscn/visualizer.tscn" id="2_8kplt"]
+[ext_resource type="Script" uid="uid://cq1efsen1qnev" path="res://gd/ui_ingreso_datos.gd" id="2_8wxc5"]
+[ext_resource type="Script" uid="uid://djh0xi2mdjica" path="res://gd/cotas_overlay.gd" id="2_ao1ln"]
+[ext_resource type="PackedScene" uid="uid://cmqt12nm2bwwp" path="res://tscn/bloque_ingreso.tscn" id="2_qtm2r"]
+[ext_resource type="Script" uid="uid://lt271faaiph7" path="res://gd/boton_proyectar.gd" id="5_8kplt"]
+[ext_resource type="Script" uid="uid://bkpmd8badhc4r" path="res://gd/panel_calculo.gd" id="5_ap273"]
+[ext_resource type="Script" uid="uid://ctv34vjcxouvm" path="res://gd/ui_botones.gd" id="8_q8ief"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ere"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 6
+border_width_top = 6
+border_width_right = 6
+border_width_bottom = 6
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+corner_radius_bottom_left = 10
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_i7uxi"]
+content_margin_left = 10.0
+content_margin_top = 10.0
+content_margin_right = 10.0
+content_margin_bottom = 10.0
+bg_color = Color(1, 1, 1, 1)
+border_width_left = 5
+border_width_top = 5
+border_width_right = 5
+border_width_bottom = 5
+border_color = Color(0, 0, 0, 1)
+corner_radius_top_left = 10
+corner_radius_top_right = 10
+corner_radius_bottom_right = 10
+
+[node name="main" type="Control" unique_id=1066099735]
+clip_contents = true
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_g6ans")
+
+[node name="fondo" type="ColorRect" parent="." unique_id=926094166]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1825455051]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.02
+anchor_right = 0.98
+anchor_bottom = 0.98
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 25
+
+[node name="UI_dibujos" type="Control" parent="VBoxContainer" unique_id=2095879983]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="container_visor3d" type="SubViewportContainer" parent="VBoxContainer/UI_dibujos" unique_id=1699236361]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+stretch = true
+
+[node name="Visor3D" type="SubViewport" parent="VBoxContainer/UI_dibujos/container_visor3d" unique_id=2109055679]
+handle_input_locally = false
+size = Vector2i(622, 490)
+render_target_update_mode = 4
+
+[node name="Visualizer" parent="VBoxContainer/UI_dibujos/container_visor3d/Visor3D" unique_id=1578010562 instance=ExtResource("2_8kplt")]
+
+[node name="cotas_overlay" type="Control" parent="VBoxContainer/UI_dibujos" unique_id=880853547]
+clip_contents = true
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("2_ao1ln")
+
+[node name="fondo_visor3d" type="PanelContainer" parent="VBoxContainer/UI_dibujos" unique_id=1929045813]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36ere")
+
+[node name="boton_return" type="Button" parent="VBoxContainer/UI_dibujos" unique_id=1794958131]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.02
+anchor_top = 0.02
+anchor_right = 0.12
+anchor_bottom = 0.12
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UI_paneles" type="Control" parent="VBoxContainer" unique_id=1906603120]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+script = ExtResource("1_ewaw7")
+
+[node name="panel_calculo" type="PanelContainer" parent="VBoxContainer/UI_paneles" unique_id=2113249796]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 0.03999996
+offset_top = -2.0399475
+offset_right = 0.039978027
+offset_bottom = 4.9600525
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_i7uxi")
+script = ExtResource("5_ap273")
+
+[node name="datos" type="VBoxContainer" parent="VBoxContainer/UI_paneles/panel_calculo" unique_id=1703511077]
+layout_mode = 2
+theme_override_constants/separation = 10
+script = ExtResource("2_8wxc5")
+
+[node name="ingreso_altura" parent="VBoxContainer/UI_paneles/panel_calculo/datos" unique_id=952815931 instance=ExtResource("2_qtm2r")]
+layout_mode = 2
+
+[node name="ingreso_largo" parent="VBoxContainer/UI_paneles/panel_calculo/datos" unique_id=217660992 instance=ExtResource("2_qtm2r")]
+layout_mode = 2
+
+[node name="ingreso_pendiente" parent="VBoxContainer/UI_paneles/panel_calculo/datos" unique_id=2088212826 instance=ExtResource("2_qtm2r")]
+layout_mode = 2
+
+[node name="boton_proyectar" type="Button" parent="VBoxContainer/UI_paneles/panel_calculo/datos" unique_id=49707615]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+size_flags_stretch_ratio = 0.0
+text = "PROYECTAR RAMPA"
+script = ExtResource("5_8kplt")
+
+[node name="panel_informacion" type="PanelContainer" parent="VBoxContainer/UI_paneles" unique_id=32821212]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="panel_configuracion" type="PanelContainer" parent="VBoxContainer/UI_paneles" unique_id=1159236775]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -2.96
+offset_top = -0.039978027
+offset_right = -2.960022
+offset_bottom = -0.039978027
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="UI_botones" type="Control" parent="VBoxContainer" unique_id=876360500]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.15
+script = ExtResource("8_q8ief")
+
+[node name="Barra" type="HBoxContainer" parent="VBoxContainer/UI_botones" unique_id=86666516]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="BotonCalculo" type="Button" parent="VBoxContainer/UI_botones/Barra" unique_id=997817606]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "1"
+
+[node name="BotonInformacion" type="Button" parent="VBoxContainer/UI_botones/Barra" unique_id=1566568841]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "2"
+
+[node name="BotonConfiguracion" type="Button" parent="VBoxContainer/UI_botones/Barra" unique_id=381602922]
+custom_minimum_size = Vector2(25, 25)
+layout_mode = 2
+size_flags_horizontal = 3
+text = "3"
+
+[connection signal="pressed" from="VBoxContainer/UI_dibujos/boton_return" to="VBoxContainer/UI_dibujos/container_visor3d/Visor3D/Visualizer" method="_on_boton_return_pressed"]
+[connection signal="pressed" from="VBoxContainer/UI_paneles/panel_calculo/datos/boton_proyectar" to="VBoxContainer/UI_paneles/panel_calculo/datos" method="_on_boton_proyectar_pressed"]

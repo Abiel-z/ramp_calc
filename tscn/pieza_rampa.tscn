@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dxmb42gfmpjda"]
+
+[ext_resource type="Script" uid="uid://deign071hmu56" path="res://gd/pieza_rampa.gd" id="1_to82w"]
+
+[node name="PiezaRampa" type="Node3D" unique_id=799145260]
+script = ExtResource("1_to82w")
