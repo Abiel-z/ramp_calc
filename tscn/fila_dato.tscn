@@ -1,0 +1,38 @@
+[gd_scene format=3 uid="uid://cdmyyljosrrsh"]
+
+[ext_resource type="Script" uid="uid://bpqc60omqs8rd" path="res://tscn/fila_dato.gd" id="1_3d781"]
+[ext_resource type="StyleBox" uid="uid://cleqsoiu6fm6w" path="res://stylebox/ingreso_normal.tres" id="2_s6jo2"]
+[ext_resource type="StyleBox" uid="uid://c7almdh8ecs40" path="res://stylebox/ingreso_read_only.tres" id="3_een1w"]
+[ext_resource type="StyleBox" uid="uid://bwpfjruk2ppu8" path="res://stylebox/ingreso_focus.tres" id="4_4hwt1"]
+[ext_resource type="Texture2D" uid="uid://1c3ayrxxq353" path="res://assets/iconos/error.png" id="5_een1w"]
+
+[node name="fila_dato" type="HBoxContainer" unique_id=1432635985]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3d781")
+
+[node name="nombre" type="Label" parent="." unique_id=1779521799]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+text = "test"
+
+[node name="entrada" type="LineEdit" parent="." unique_id=1128406585]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/normal = ExtResource("2_s6jo2")
+theme_override_styles/read_only = ExtResource("3_een1w")
+theme_override_styles/focus = ExtResource("4_4hwt1")
+text = "000"
+alignment = 1
+
+[node name="icono_error" type="TextureRect" parent="entrada" unique_id=1654412604]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+layout_direction = 3
+texture = ExtResource("5_een1w")
+expand_mode = 3

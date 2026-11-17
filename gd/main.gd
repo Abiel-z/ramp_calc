@@ -14,20 +14,20 @@ var plan_actual: Array = []
 func _ready():
 	ui_botones.estado_pedido.connect(ui_paneles.mostrar)
 	ui_paneles.mostrar(UIBotones.Estado.CALCULO)
-
+	
 	overlay.camara = visualizer.camara
 	visualizer.cotas_generadas.connect(overlay.set_cotas)
-
+	
 	var mat := ShaderMaterial.new()
 	mat.shader = preload("res://shaders/contorno.gdshader")
 	con_visualizer.material = mat
 	ManagerConfig.vincular_shader(mat, "contorno")
 	
 	visualizer.pieza_seleccionada.connect(func(_id, esq): overlay.set_seleccion(esq))
-	#ui_calculos.proyectar_solicitado.connect(visualizer.dibujar)
 	
 	ui_calculos.proyectar_solicitado.connect(info_lista.mostrar_plan)
 	info_lista.seleccionado.connect(visualizer.seleccionar)
+	info_lista.eliminar_solicitado.connect(_on_eliminar_solicitado)
 	visualizer.pieza_seleccionada.connect(func(id: String, esq: PackedVector3Array):
 		overlay.set_seleccion(esq)
 		info_lista.resaltar(id)
@@ -48,3 +48,14 @@ func _on_proyectar(plan_nuevo: Array, sumar: bool) -> void:
 	plan_actual = RampaPlan.sumar(plan_actual, plan_nuevo) if sumar else plan_nuevo
 	visualizer.dibujar(plan_actual)
 	info_lista.mostrar_plan(plan_actual)
+
+func _on_eliminar_solicitado(id: String) -> void:
+	var nuevo := RampaPlan.eliminar(plan_actual, id)
+	if nuevo.size() == plan_actual.size():
+		return   # no se pudo eliminar
+	plan_actual = nuevo
+	visualizer.dibujar(plan_actual, true) 
+	visualizer.dibujar(plan_actual)
+	visualizer.seleccionar("") 
+	info_lista.mostrar_plan(plan_actual)
+	info_lista.resaltar("")

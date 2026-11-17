@@ -4,14 +4,9 @@
 [ext_resource type="StyleBox" uid="uid://cleqsoiu6fm6w" path="res://stylebox/ingreso_normal.tres" id="2_fd860"]
 [ext_resource type="StyleBox" uid="uid://c7almdh8ecs40" path="res://stylebox/ingreso_read_only.tres" id="3_16djj"]
 [ext_resource type="StyleBox" uid="uid://bwpfjruk2ppu8" path="res://stylebox/ingreso_focus.tres" id="4_hq1ia"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_felbx"]
-bg_color = Color(0.6, 0.6, 0.6, 0)
-border_width_left = 4
-border_width_top = 4
-border_width_right = 4
-border_width_bottom = 4
-border_color = Color(0.7607843, 0.89411765, 1, 1)
+[ext_resource type="Texture2D" uid="uid://cc2vqoycvcmnr" path="res://assets/iconos/block.png" id="5_fd860"]
+[ext_resource type="Texture2D" uid="uid://1c3ayrxxq353" path="res://assets/iconos/error.png" id="6_16djj"]
+[ext_resource type="StyleBox" uid="uid://cs1bp063bs7a7" path="res://stylebox/label_sin_fondo.tres" id="7_hq1ia"]
 
 [node name="BloqueIngreso" type="VBoxContainer" unique_id=952815931]
 anchors_preset = 15
@@ -25,6 +20,7 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 3
 script = ExtResource("1_5al38")
+icono_candado = ExtResource("5_fd860")
 
 [node name="titulo" type="Label" parent="." unique_id=1086552326]
 layout_mode = 2
@@ -47,6 +43,14 @@ theme_override_styles/read_only = ExtResource("3_16djj")
 theme_override_styles/focus = ExtResource("4_hq1ia")
 placeholder_text = "Altura en cm"
 
+[node name="icono_error" type="TextureRect" parent="datos/ingreso" unique_id=382439925]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+layout_direction = 3
+texture = ExtResource("6_16djj")
+stretch_mode = 1
+
 [node name="resultado" type="Label" parent="datos" unique_id=6941696]
 layout_mode = 2
 size_flags_horizontal = 3
@@ -54,5 +58,5 @@ size_flags_vertical = 1
 size_flags_stretch_ratio = 0.7
 theme_override_colors/font_color = Color(0, 0, 0, 1)
 theme_override_font_sizes/font_size = 40
-theme_override_styles/normal = SubResource("StyleBoxFlat_felbx")
+theme_override_styles/normal = ExtResource("7_hq1ia")
 horizontal_alignment = 1

@@ -84,3 +84,44 @@ static func editar(plan: Array, id: String, campo: String, valor: float) -> Arra
 		res[i].cota_inicio += d
 		res[i].cota_fin += d
 	return res
+
+static func eliminar(plan: Array, id: String) -> Array:
+	var idx := -1
+	for i in plan.size():
+		if plan[i].id == id:
+			idx = i
+	if idx < 0 or plan[idx].tipo != "rampa":
+		return plan   # un descanso no se elimina solo
+
+	#var rampas := plan.filter(func(p): return p.tipo == "rampa").size()
+	#if rampas <= 1:
+		#return plan   # la única rampa no se elimina
+
+	# sale la rampa + un descanso vecino: el anterior si existe, si no el posterior
+	var inicio := idx - 1 if idx > 0 else idx
+	var cantidad := 2
+
+	var res: Array = []
+	for p in plan:
+		res.append(p.duplicate())
+
+	# a qué cota se engancha lo que queda después del hueco
+	var cota: float = plan[0].cota_inicio if inicio == 0 else plan[inicio - 1].cota_fin
+
+	for k in cantidad:
+		res.remove_at(inicio)
+
+	# las piezas siguientes se acomodan a esa cota
+	for i in range(inicio, res.size()):
+		var d: float = cota - res[i].cota_inicio
+		res[i].cota_inicio += d
+		res[i].cota_fin += d
+		cota = res[i].cota_fin
+
+	# renumerar ids e índices para que sumar() no repita nombres
+	var cuenta := {"rampa": 0, "descanso": 0}
+	for i in res.size():
+		cuenta[res[i].tipo] += 1
+		res[i].id = "%s_%d" % [res[i].tipo, cuenta[res[i].tipo]]
+		res[i].indice = i
+	return res

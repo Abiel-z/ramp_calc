@@ -1,22 +1,18 @@
 extends VBoxContainer
 
-func _ready() -> void:
-	for g in ManagerConfig.DEFAULTS:
-		var cab := Label.new()
-		cab.name = "titulo_" + g
-		cab.text = g.capitalize()
-		add_child(cab)
-		ManagerConfig.estilizar_label(cab, "titulo")
-		for k in ManagerConfig.DEFAULTS[g]:
-			var b := BloqueConfig.new()
-			add_child(b)
-			b.setup(g, k)
-		add_child(HSeparator.new())
+const ITEM_ESCENA := preload("res://tscn/item_config.tscn")
 
-	var reset := Button.new()
-	reset.text = "Restablecer valores"
-	reset.pressed.connect(ManagerConfig.reset)
-	add_child(reset)
+@onready var button_reset := $boton_reset
+
+func _ready() -> void:
+
+	for item in ManagerConfig.DEFAULTS:
+		var nodo: ItemConfig = ITEM_ESCENA.instantiate()
+		add_child(nodo)
+		nodo.setup(item)
+
+	button_reset.text = "Restablecer valores"
+	button_reset.pressed.connect(ManagerConfig.reset)
 
 	visibility_changed.connect(_on_visibilidad)
 

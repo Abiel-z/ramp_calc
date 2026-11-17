@@ -5,11 +5,12 @@ const SEPARACION_TOTAL_CM := 60.0    # cuánto más arriba que las cotas individ
 const DESFASE_VERTICAL_CM := 30.0    # separa la cota vertical del eje de la rampa
 const SUBIR_TEXTO_VERTICAL_CM := 0.0
 
+const Z_COTA_PENDIENTE := 0.0
+const SEP_CM := 30.0     # cuánto se separa la cota de la superficie
+const MARCA_CM := 8.0    # largo de las marcas de los extremos
 
 signal cotas_generadas(cotas: Array)
 signal pieza_seleccionada(id: String, esquinas: PackedVector3Array)
-
-
 
 @onready var camara: Camera3D = $Camera3D
 
@@ -17,6 +18,9 @@ var edicion : bool = false
 var _sel_id := ""
 var _tap_inicio := Vector2.ZERO
 var _tap_valido := false
+
+var _ultimos_elementos: Array = []
+
 
 # --- cámara orbital ---
 var _objetivo := Vector3.ZERO   # punto que mira la cámara (centro de la rampa)
@@ -49,6 +53,12 @@ func _ready():
 	var luz := DirectionalLight3D.new()
 	luz.rotation_degrees = Vector3(-45.0, -40.0, 0.0)
 	add_child(luz)
+	Ajustes.unidad_cambiada.connect(_on_unidad_cambiada)
+
+func _on_unidad_cambiada():
+	if _ultimos_elementos.is_empty():
+		return
+	dibujar(_ultimos_elementos, true)
 
 func _encuadrar(largo_total: float, altura: float):
 	_objetivo = Vector3(largo_total / 2.0, altura / 2.0, 0.0) * PiezaRampa.CM
@@ -56,8 +66,6 @@ func _encuadrar(largo_total: float, altura: float):
 	_dist_min = _dist * 0.25
 	_dist_max = _dist * 2.5
 	_actualizar_camara()
-
-
 
 func _actualizar_camara():
 	var dir := Vector3(sin(_yaw) * cos(_pitch), sin(_pitch), cos(_yaw) * cos(_pitch))
@@ -139,6 +147,7 @@ func _panear(delta_px: Vector2):
 	_actualizar_camara()
 
 func dibujar(elementos: Array, edicion := false):
+	_ultimos_elementos = elementos
 	var id_sel := _sel_id
 	_limpiar()
 	if not edicion:
@@ -193,17 +202,22 @@ func _generar_cotas(tramos: Array, largo_total: float, cota_min: float, cota_max
 	for t in tramos:
 		cotas.append(Cota.horizontal(
 			Vector3(t.x0, t.c0, 0.0), Vector3(t.x1, t.c1, 0.0),
-			y_linea, "%s cm" % _fmt(t.x1 - t.x0)))
+			y_linea, Unidades.formatear(t.x1 - t.x0)))
 
 	# cota total, solo si hay más de una pieza
 	if tramos.size() > 1:
 		cotas.append(Cota.horizontal(
 			Vector3(0.0, tramos[0].c0, 0.0), Vector3(largo_total, tramos[-1].c1, 0.0),
-			y_linea + SEPARACION_TOTAL_CM, "%s cm" % _fmt(largo_total)))
+			y_linea + SEPARACION_TOTAL_CM, Unidades.formatear(largo_total)))
 
 	# cota de altura total
 	cotas.append(Cota.vertical(largo_total, 0.0, cota_min, cota_max, DESFASE_VERTICAL_CM,
-		"%s cm" % _fmt(cota_max - cota_min)))
+		Unidades.formatear(cota_max - cota_min)))
+
+	for t in tramos:
+		if not is_equal_approx(t.c0, t.c1):
+			cotas.append(_cota_inclinada(t, cota_min, Z_COTA_PENDIENTE))
+
 	return cotas
 
 func _limpiar():
@@ -279,3 +293,24 @@ func _detectar_tap_mouse(event: InputEvent) -> void:
 	elif event is InputEventMouseMotion and _tap_valido:
 		if event.position.distance_to(_tap_inicio) > 12.0:
 			_tap_valido = false
+
+func _cota_inclinada(t: Dictionary, cota_min: float, z: float) -> Dictionary:
+	var cm := PiezaRampa.CM
+	var a := Vector3(t.x0, t.c0 - cota_min + SEP_CM, z) * cm
+	var b := Vector3(t.x1, t.c1 - cota_min + SEP_CM, z) * cm
+	var marca := Vector3(0.0, MARCA_CM, 0.0) * cm
+
+	var largo: float = t.x1 - t.x0
+	var pend: float = absf(t.c1 - t.c0) / largo * 100.0 if largo > 0.0 else 0.0
+	var texto := str(snappedf(pend, 0.1)).trim_suffix(".0").replace(".", ",") + " %"
+
+	return {
+		"segmentos": [
+			[a, b],
+			[a - marca, a + marca],
+			[b - marca, b + marca],
+		],
+		"pos_texto": (a + b) / 2.0,
+		"texto": texto,
+		"texto_centrado": true,
+	}

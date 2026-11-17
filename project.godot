@@ -17,7 +17,9 @@ config/icon="res://icon.svg"
 
 [autoload]
 
+Ajustes="*uid://jiow0umalc5j"
 ManagerConfig="*uid://73sd458lxb5e"
+ManagerTemas="*uid://deb0nug0vxkk4"
 
 [display]
 

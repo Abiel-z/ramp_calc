@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://dmljg34wlmih6"]
+
+[ext_resource type="Script" uid="uid://cj5wyvytfo88e" path="res://gd/fila_color.gd" id="1_63lg7"]
+
+[node name="fila_color" type="VBoxContainer" unique_id=1832952203]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_63lg7")
+
+[node name="nombre" type="Label" parent="." unique_id=2116738490]
+layout_mode = 2
+
+[node name="muestras" type="HFlowContainer" parent="." unique_id=362116473]
+layout_mode = 2

@@ -2,6 +2,19 @@ extends Node
 
 signal config_cambiada(grupo: String, clave: String)
 
+const PALETA := {
+	"rojo": Color("#ff4d4d"),
+	"naranjo": Color("#ff9f43"),
+	"amarillo": Color("#feca57"),
+	"verde": Color("#1dd1a1"),
+	"celeste": Color("#48dbfb"),
+	"azul": Color("#54a0ff"),
+	"morado": Color("#a55eea"),
+	"gris": Color("#8395a7"),
+	"negro": Color("#1e1e1e"),
+	"blanco": Color("#ffffff"),
+}
+
 const DEFAULTS := {
 	"titulo": {
 		"text_size": {"valor": 25.0, "min": 10.0, "max": 60.0},
@@ -19,7 +32,7 @@ const DEFAULTS := {
 		"color_contorno": {"valor": Color.WHITE},
 	},
 	"global": {
-		"error_color": {"valor": Color.BLACK},
+		"error_color": {"valor": Color.RED},
 	},
 	"ingreso": {
 		"text_size": {"valor": 18.0, "min": 10.0, "max": 48.0},
@@ -44,17 +57,44 @@ const DEFAULTS := {
 
 var _valores: Dictionary = {}
 
+const ENLACES_TEMA := {
+	"titulo/text_color": "titulo",
+	"textos/text_color": "texto",
+	"ingreso/text_color": "texto",
+	"resultado/text_color": "texto",
+	"cotas/text_color": "texto",
+	"cotas/color_contorno": "fondo",
+	"contorno/color_fondo": "fondo",
+}
+
+
 func _ready() -> void:
 	for g in DEFAULTS:
 		_valores[g] = {}
 		for k in DEFAULTS[g]:
 			_valores[g][k] = DEFAULTS[g][k]["valor"]
+	ManagerTemas.tema_cambiado.connect(_on_tema_cambiado)
+
+func _on_tema_cambiado() -> void:
+	for ruta in ENLACES_TEMA:
+		var p: PackedStringArray = ruta.split("/")
+		config_cambiada.emit(p[0], p[1])
+
+#func get_valor(grupo: String, clave: String) -> Variant:
+	#if not (_valores.has(grupo) and _valores[grupo].has(clave)):
+		#push_error("Config inexistente: %s/%s" % [grupo, clave])
+		#return null
+	#return _valores[grupo][clave]
 
 func get_valor(grupo: String, clave: String) -> Variant:
 	if not (_valores.has(grupo) and _valores[grupo].has(clave)):
 		push_error("Config inexistente: %s/%s" % [grupo, clave])
 		return null
-	return _valores[grupo][clave]
+	var v = _valores[grupo][clave]
+	var rol: String = ENLACES_TEMA.get(grupo + "/" + clave, "")
+	if rol != "":
+		return ManagerTemas.color_rol(rol, v)
+	return v
 
 func get_color(grupo: String, clave: String = "text_color") -> Color:
 	return get_valor(grupo, clave)
@@ -83,6 +123,10 @@ func estilizar_label(control: Control, grupo: String) -> void:
 	if not _valores.has(grupo):
 		push_error("Grupo de config inexistente: %s" % grupo)
 		return
+	if control == null:
+		push_error("CONTROL NULL")
+		return
+		
 	_aplicar_estilo(control, grupo)
 	var cb := func(g: String, _k: String) -> void:
 		if g == grupo and is_instance_valid(control):
@@ -106,9 +150,8 @@ func vincular_shader(material: ShaderMaterial, grupo: String) -> void:
 		return
 	
 	for k in _valores[grupo]:
-		material.set_shader_parameter(k, _valores[grupo][k])
+		material.set_shader_parameter(k, get_valor(grupo, k))
 	config_cambiada.connect(func(g: String, k: String) -> void:
 		if g == grupo:
-			print("aplicando al shader ", k, " = ", _valores[g][k])   # temporal
-			material.set_shader_parameter(k, _valores[g][k])
+			material.set_shader_parameter(k, get_valor(g, k))
 	)

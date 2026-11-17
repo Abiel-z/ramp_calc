@@ -3,25 +3,34 @@ extends VBoxContainer
 
 signal seleccionado(id: String)
 signal valor_editado(id: String, campo: String, valor: float)
+signal eliminar_solicitado(id: String)
+
+const BLOQUE_ESCENA: PackedScene = preload("res://tscn/bloque_informacion.tscn")
 
 var _bloques := {}   # id -> BloqueInformacion
 
 func mostrar_plan(elementos: Array, _sumar := false) -> void:
+	var varios := _hay_varias_rampas(elementos)
 	if _mismos_ids(elementos):
 		for e in elementos:
-			_bloques[e.id].actualizar(_filas(e))
+			_bloques[e.id].actualizar(e, varios)
 		return
 	for c in get_children():
 		remove_child(c)
 		c.queue_free()
 	_bloques.clear()
 	for e in elementos:
-		var b := BloqueInformacion.new()
+		var b: BloqueInformacion = BLOQUE_ESCENA.instantiate()
 		add_child(b)
-		b.cargar(e.id, e.id.replace("_", " ").capitalize(), _filas(e))
+		b.cargar(e, varios)
 		b.tocado.connect(seleccionado.emit)
 		b.valor_editado.connect(valor_editado.emit)
+		b.eliminar_solicitado.connect(eliminar_solicitado.emit)
 		_bloques[e.id] = b
+
+# "más de un cuerpo" = el plan tiene más de una rampa
+func _hay_varias_rampas(elementos: Array) -> bool:
+	return elementos.filter(func(x): return x.tipo == "rampa").size() > 1
 
 func _mismos_ids(elementos: Array) -> bool:
 	if elementos.size() != _bloques.size():
@@ -40,21 +49,3 @@ func mostrar_bloque(id: String) -> void:
 	var scroll := get_parent() as ScrollContainer
 	if scroll and _bloques.has(id) and is_instance_valid(_bloques[id]):
 		scroll.ensure_control_visible(_bloques[id])
-
-func _filas(e) -> Array:
-	var dz: float = absf(e.cota_fin - e.cota_inicio)
-	if e.tipo == "rampa":
-		var pend: float = dz / e.largo * 100.0 if e.largo > 0.0 else 0.0
-		return [
-			{"campo": "largo", "nombre": "Largo (cm)", "valor": e.largo, "editable": true},
-			{"campo": "ancho", "nombre": "Ancho (cm)", "valor": e.ancho, "editable": true},
-			{"campo": "pendiente", "nombre": "Pendiente (%)", "valor": pend, "editable": true},
-			{"campo": "desnivel", "nombre": "Desnivel (cm)", "valor": dz, "editable": true},
-			{"campo": "alt_min", "nombre": "Altura mín. (cm)", "valor": minf(e.cota_inicio, e.cota_fin), "editable": false},
-			{"campo": "alt_max", "nombre": "Altura máx. (cm)", "valor": maxf(e.cota_inicio, e.cota_fin), "editable": false},
-		]
-	return [
-		{"campo": "largo", "nombre": "Largo (cm)", "valor": e.largo, "editable": true},
-		{"campo": "ancho", "nombre": "Ancho (cm)", "valor": e.ancho, "editable": true},
-		{"campo": "altura", "nombre": "Altura (cm)", "valor": e.cota_inicio, "editable": false},
-	]

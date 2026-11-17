@@ -1,105 +1,84 @@
-# bloque_informacion.gd
 class_name BloqueInformacion
 extends PanelContainer
 
 signal tocado(id: String)
 signal valor_editado(id: String, campo: String, valor: float)
+signal eliminar_solicitado(id: String)
 
-const POR_COLUMNA := 3
+
+const CLAVE_LIMITE := {
+	"largo": "largo", "ancho": "ancho", "pendiente": "pendiente",
+	"desnivel": "altura",
+	"altura": "cota", "alt_min": "cota", "alt_max": "cota",
+}
+var _ultimos := {}   # campo -> último valor válido
+
 const BORDE := Color(0.5, 0.5, 0.5, 0.6)
 
 var id := ""
-var _titulo: Label
-var _cols: Array[GridContainer] = []
-var _inputs := {}    # campo -> LineEdit
-var _labels := {}    # campo -> Label (solo lectura)
-var _ultimos := {}   # campo -> último valor que vino del plan
+var _filas := {}   # campo -> FilaDato
 var _press := Vector2.ZERO
 var _tap_valido := false
 
-func _init() -> void:
-	size_flags_horizontal = Control.SIZE_EXPAND_FILL
+@onready var label_titulo: Label = $v_box/encabezado/titulo
+@onready var _boton_eliminar: Button = $v_box/encabezado/boton_eliminar
+@onready var _cols: Array[VBoxContainer] = [$v_box/contenido/fila_1, $v_box/contenido/fila_2]
+@onready var contenido : HBoxContainer = $v_box/contenido
+
+func _ready() -> void:
 	mouse_filter = Control.MOUSE_FILTER_PASS
 	add_theme_stylebox_override("panel", _estilo(BORDE, 1))
+	ManagerConfig.estilizar_label(label_titulo, "titulo")
+	_boton_eliminar.pressed.connect(func(): eliminar_solicitado.emit(id))
+	_recolectar_filas(contenido)
 
-	var caja := VBoxContainer.new()
-	caja.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	add_child(caja)
-
-	_titulo = Label.new()
-	caja.add_child(_titulo)
-	ManagerConfig.estilizar_label(_titulo, "titulo")
-
-	var columnas := HBoxContainer.new()
-	columnas.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-	columnas.add_theme_constant_override("separation", 24)
-	caja.add_child(columnas)
-
-	for i in 2:
-		var g := GridContainer.new()
-		g.columns = 2
-		g.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-		g.add_theme_constant_override("h_separation", 12)
-		g.add_theme_constant_override("v_separation", 2)
-		columnas.add_child(g)
-		_cols.append(g)
-
-func cargar(seg_id: String, titulo: String, filas: Array) -> void:
-	id = seg_id
-	_titulo.text = titulo
-	for i in filas.size():
-		var f: Dictionary = filas[i]
-		var g := _cols[0] if i < POR_COLUMNA else _cols[1]
-		_ultimos[f.campo] = f.valor
-
-		var n := Label.new()
-		n.text = f.nombre
-		g.add_child(n)
-		ManagerConfig.estilizar_label(n, "textos")
-
-		if f.editable:
-			var le := LineEdit.new()
-			le.text = _fmt(f.valor)
-			le.alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			le.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			le.custom_minimum_size.x = 70
-			le.virtual_keyboard_type = LineEdit.KEYBOARD_TYPE_NUMBER_DECIMAL
-			le.text_submitted.connect(func(_t): le.release_focus())   # Enter = soltar el foco = confirmar
-			le.focus_exited.connect(_confirmar.bind(f.campo))
-			g.add_child(le)
-			ManagerConfig.estilizar_label(le, "ingreso")
-			_inputs[f.campo] = le
+func _recolectar_filas(nodo: Node) -> void:
+	for h in nodo.get_children():
+		if h is FilaDato:
+			_filas[h.campo] = h
+			h.valor_editado.connect(_on_valor_editado)
 		else:
-			var v := Label.new()
-			v.text = _fmt(f.valor)
-			v.size_flags_horizontal = Control.SIZE_EXPAND_FILL
-			v.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
-			g.add_child(v)
-			ManagerConfig.estilizar_label(v, "textos")
-			_labels[f.campo] = v
-	_cols[1].visible = _cols[1].get_child_count() > 0
+			_recolectar_filas(h)
 
-# refresca los valores sin reconstruir nada (no pisa el campo que se está escribiendo)
-func actualizar(filas: Array) -> void:
-	for f in filas:
-		_ultimos[f.campo] = f.valor
-		if _inputs.has(f.campo):
-			var le: LineEdit = _inputs[f.campo]
-			if not le.has_focus():
-				le.text = _fmt(f.valor)
-		elif _labels.has(f.campo):
-			_labels[f.campo].text = _fmt(f.valor)
 
-func _confirmar(campo: String) -> void:
-	var le: LineEdit = _inputs[campo]
-	var t := le.text.strip_edges()
-	if t == _fmt(_ultimos[campo]):
-		return   # no se tocó nada
-	var s := t.replace(",", ".")
-	if not s.is_valid_float():
-		le.text = _fmt(_ultimos[campo])
+func cargar(e, varios_cuerpos := false) -> void:
+	id = e.id
+	label_titulo.text = e.id.replace("_", " ").capitalize()
+	actualizar(e, varios_cuerpos)
+
+func actualizar(e, varios_cuerpos := false) -> void:
+	_boton_eliminar.visible = e.tipo == "rampa"
+	var v := _valores(e, varios_cuerpos)   # solo los campos que corresponden a este elemento
+	for campo in _filas:
+		var fila: FilaDato = _filas[campo]
+		fila.visible = v.has(campo)
+		if v.has(campo):
+			fila.actualizar(v[campo])
+			_ultimos[campo] = v[campo]
+	for col in _cols:
+		col.visible = col.get_children().any(func(c): return c.visible)
+
+func _valores(e, varios_cuerpos: bool) -> Dictionary:
+	var dz: float = absf(e.cota_fin - e.cota_inicio)
+	var v := {"largo": e.largo, "ancho": e.ancho}
+	if e.tipo == "rampa":
+		v["pendiente"] = dz / e.largo * 100.0 if e.largo > 0.0 else 0.0
+		v["desnivel"] = dz
+		if varios_cuerpos:   # solo cuando el plan tiene más de una rampa
+			v["alt_min"] = minf(e.cota_inicio, e.cota_fin)
+			v["alt_max"] = maxf(e.cota_inicio, e.cota_fin)
+		v["altura"] = e.cota_inicio
+	return v
+
+func _on_valor_editado(campo: String, valor: float) -> void:
+	var clave: String = CLAVE_LIMITE.get(campo, "")
+	if clave != "" and not RampaCalculo.en_rango(clave, valor):
+		if _ultimos.has(campo):
+			_filas[campo].actualizar(_ultimos[campo])
+		_filas[campo].marcar_error(ManagerConfig.get_color("global", "error_color"))
 		return
-	valor_editado.emit(id, campo, s.to_float())
+	_ultimos[campo] = valor
+	valor_editado.emit(id, campo, valor)
 
 func resaltar(activo: bool) -> void:
 	var color := ManagerConfig.get_color("seleccion", "color") if activo else BORDE

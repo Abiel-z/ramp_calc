@@ -1,11 +1,115 @@
 [gd_scene format=3 uid="uid://bu2nicewu1n1d"]
 
 [ext_resource type="Script" uid="uid://0jxseinj58lr" path="res://gd/bloque_informacion.gd" id="1_7rejw"]
+[ext_resource type="StyleBox" uid="uid://5ldkh82qrcsw" path="res://stylebox/button_normal.tres" id="2_2eija"]
+[ext_resource type="PackedScene" uid="uid://cdmyyljosrrsh" path="res://tscn/fila_dato.tscn" id="2_vx7me"]
+[ext_resource type="StyleBox" uid="uid://b46et34xs2rwe" path="res://stylebox/button_pressed.tres" id="3_1bisr"]
+[ext_resource type="StyleBox" uid="uid://b084gusshj21n" path="res://stylebox/button_hover.tres" id="4_c1x6d"]
 
-[node name="bloque_informacion" type="VBoxContainer" unique_id=138446207]
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_36ere"]
+bg_color = Color(0.6, 0.6, 0.6, 0)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.7607843, 0.89411765, 1, 1)
+corner_radius_top_left = 8
+corner_radius_top_right = 8
+corner_radius_bottom_right = 8
+corner_radius_bottom_left = 8
+
+[node name="bloque_informacion" type="PanelContainer" unique_id=298920151]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+offset_left = 2.0
+offset_top = 2.0
+offset_right = 2.0
+offset_bottom = -615.0
 grow_horizontal = 2
 grow_vertical = 2
+mouse_filter = 2
+theme_override_styles/panel = SubResource("StyleBoxFlat_36ere")
 script = ExtResource("1_7rejw")
+
+[node name="caja" type="Control" parent="." unique_id=743794770]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="v_box" type="VBoxContainer" parent="." unique_id=1461128271]
+layout_mode = 2
+theme_override_constants/separation = 30
+
+[node name="encabezado" type="HBoxContainer" parent="v_box" unique_id=831658271]
+layout_mode = 2
+size_flags_vertical = 3
+size_flags_stretch_ratio = 0.1
+offset_transform_enabled = true
+
+[node name="titulo" type="Label" parent="v_box/encabezado" unique_id=1256938398]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 8
+offset_transform_enabled = true
+offset_transform_position = Vector2(10, 0)
+text = "test"
+
+[node name="boton_eliminar" type="Button" parent="v_box/encabezado" unique_id=1343180008]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_stretch_ratio = 0.1
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_styles/normal = ExtResource("2_2eija")
+theme_override_styles/pressed = ExtResource("3_1bisr")
+theme_override_styles/hover = ExtResource("4_c1x6d")
+text = "X"
+
+[node name="separacion" type="Line2D" parent="v_box" unique_id=1999312464]
+position = Vector2(13, 60)
+points = PackedVector2Array(-1, 0, 604, 0)
+width = 2.0
+default_color = Color(0.7607843, 0.89411765, 1, 1)
+
+[node name="contenido" type="HBoxContainer" parent="v_box" unique_id=397521908]
+layout_mode = 2
+size_flags_vertical = 3
+
+[node name="fila_1" type="VBoxContainer" parent="v_box/contenido" unique_id=2105346035]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Largo" parent="v_box/contenido/fila_1" unique_id=1432635985 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "largo"
+nombre = "Largo"
+
+[node name="Ancho" parent="v_box/contenido/fila_1" unique_id=949696759 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "ancho"
+nombre = "Ancho"
+
+[node name="Altura_min" parent="v_box/contenido/fila_1" unique_id=1864355130 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "altura_min"
+nombre = "Altura mín."
+editable = false
+
+[node name="fila_2" type="VBoxContainer" parent="v_box/contenido" unique_id=1012510972]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Pendiente" parent="v_box/contenido/fila_2" unique_id=1677992188 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "pendiente"
+nombre = "Pendiente"
+es_longitud = false
+
+[node name="Desnivel" parent="v_box/contenido/fila_2" unique_id=290336626 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "desnivel"
+nombre = "Desnivel"
+
+[node name="Altura_max" parent="v_box/contenido/fila_2" unique_id=480857331 instance=ExtResource("2_vx7me")]
+layout_mode = 2
+campo = "altura_max"
+nombre = "Altura máx."
